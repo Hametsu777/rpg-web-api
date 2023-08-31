@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RPGWebAPI.Models;
+using RPGWebAPI.Services.CharacterService;
 
 namespace RPGWebAPI.Controllers
 {
@@ -13,22 +14,32 @@ namespace RPGWebAPI.Controllers
     [ApiController]
     public class CharacterController : ControllerBase
     {
-        public static List<Character> characters = new List<Character>
-        {
-            new Character(),
-            new Character{Id = 1, Name = "Sam"}
-        };
 
-        [HttpGet("/GetAll")]
-        public ActionResult<List<Character>> GetAllCharacters()
+        // This code above the HTTP request, injects the character service into the controller.
+        private readonly ICharacterService _characterService;
+
+        public CharacterController(ICharacterService characterService)
         {
-            return Ok(characters);
+            _characterService = characterService;
         }
 
-        [HttpGet("/GetSingle")]
-        public ActionResult<Character> GetSingleCharacter(int id)
+        // In the return statement, need to call the corresponding _characterService method.
+        [HttpGet("/GetAll")]
+        public async Task<ActionResult<ServiceResponse<List<Character>>>> GetAllCharacters()
         {
-            return Ok(characters.FirstOrDefault(c => c.Id == id));
+            return Ok(await _characterService.GetAllCharacters());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<Character>>> GetSingleCharacter(int id)
+        {
+            return Ok(await _characterService.GetCharacterById(id));
+        }
+
+        [HttpPost("/Add")]
+        public async Task<ActionResult<ServiceResponse<List<Character>>>> AddCharacter(Character newCharacter)
+        {
+            return Ok(await _characterService.AddCharacter(newCharacter));
         }
     }
 }
