@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RPGWebAPI.Dtos.Character;
 using RPGWebAPI.Models;
 using RPGWebAPI.Services.CharacterService;
 
@@ -25,21 +27,43 @@ namespace RPGWebAPI.Controllers
 
         // In the return statement, need to call the corresponding _characterService method.
         [HttpGet("/GetAll")]
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> GetAllCharacters()
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> GetAllCharacters()
         {
             return Ok(await _characterService.GetAllCharacters());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<Character>>> GetSingleCharacter(int id)
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> GetSingleCharacter(int id)
         {
             return Ok(await _characterService.GetCharacterById(id));
         }
 
         [HttpPost("/Add")]
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> AddCharacter(Character newCharacter)
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> AddCharacter(AddCharacterDto newCharacter)
         {
             return Ok(await _characterService.AddCharacter(newCharacter));
+        }
+
+        [HttpPut("/Update")]
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> UpdateCharacter(UpdateCharacterDto updatedCharacter)
+        {
+            var response = await _characterService.UpdateCharacter(updatedCharacter);
+            if (response == null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> DeleteCharacter(int id)
+        {
+            var response = await _characterService.DeleteCharacter(id);
+            if (response == null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
         }
     }
 }
